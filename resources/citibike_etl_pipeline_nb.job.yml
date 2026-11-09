@@ -11,6 +11,7 @@ resources:
               run_id: "{{job.run_id}}"
               task_id: "{{task.run_id}}"
               processed_timestamp: "{{job.start_time.iso_datetime}}"
+              catalog: "${var.catalog}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 02_silver_citibike
@@ -23,6 +24,7 @@ resources:
               run_id: "{{job.run_id}}"
               task_id: "{{task.run_id}}"
               processed_timestamp: "{{job.start_time.iso_datetime}}"
+              catalog: "${var.catalog}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 03_gold_citibike_daily_ride_summary
@@ -35,6 +37,7 @@ resources:
               run_id: "{{job.run_id}}"
               task_id: "{{task.run_id}}"
               processed_timestamp: "{{job.start_time.iso_datetime}}"
+              catalog: "${var.catalog}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 03_gold_citibike_daily_station_performance
@@ -47,6 +50,7 @@ resources:
               run_id: "{{job.run_id}}"
               task_id: "{{task.run_id}}"
               processed_timestamp: "{{job.start_time.iso_datetime}}"
+              catalog: "${var.catalog}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
       job_clusters:
