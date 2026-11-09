@@ -6,6 +6,11 @@ resources:
         - task_key: 01_bronze_citibike
           notebook_task:
             notebook_path: ../citibike_etl/notebooks/01_bronze/01_bronze_citibike.ipynb
+            base_parameters:
+              pipeline_id: "{{job.id}}"
+              run_id: "{{job.run_id}}"
+              task_id: "{{task.run_id}}"
+              processed_timestamp: "{{job.start_time.iso_datetime}}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 02_silver_citibike
@@ -13,6 +18,11 @@ resources:
             - task_key: 01_bronze_citibike
           notebook_task:
             notebook_path: ../citibike_etl/notebooks/02_silver/02_silver_citibike.ipynb
+            base_parameters:
+              pipeline_id: "{{job.id}}"
+              run_id: "{{job.run_id}}"
+              task_id: "{{task.run_id}}"
+              processed_timestamp: "{{job.start_time.iso_datetime}}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 03_gold_citibike_daily_ride_summary
@@ -20,6 +30,11 @@ resources:
             - task_key: 02_silver_citibike
           notebook_task:
             notebook_path: ../citibike_etl/notebooks/03_gold/03_gold_citibike_daily_ride_summary.ipynb
+            base_parameters:
+              pipeline_id: "{{job.id}}"
+              run_id: "{{job.run_id}}"
+              task_id: "{{task.run_id}}"
+              processed_timestamp: "{{job.start_time.iso_datetime}}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 03_gold_citibike_daily_station_performance
@@ -27,6 +42,11 @@ resources:
             - task_key: 02_silver_citibike
           notebook_task:
             notebook_path: ../citibike_etl/notebooks/03_gold/03_gold_citibike_daily_station_performance.ipynb
+            base_parameters:
+              pipeline_id: "{{job.id}}"
+              run_id: "{{job.run_id}}"
+              task_id: "{{task.run_id}}"
+              processed_timestamp: "{{job.start_time.iso_datetime}}"
             source: WORKSPACE
           job_cluster_key: citibike_etl_pipeline_nb_cluster
       job_clusters:
