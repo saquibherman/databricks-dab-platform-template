@@ -1,0 +1,47 @@
+resources:
+  jobs:
+    citibike_etl_pipeline_nb:
+      name: citibike_etl_pipeline_nb
+      tasks:
+        - task_key: 01_bronze_citibike
+          notebook_task:
+            notebook_path: ../citibike_etl/notebooks/01_bronze/01_bronze_citibike.ipynb
+            source: WORKSPACE
+          job_cluster_key: citibike_etl_pipeline_nb_cluster
+        - task_key: 02_silver_citibike
+          depends_on:
+            - task_key: 01_bronze_citibike
+          notebook_task:
+            notebook_path: ../citibike_etl/notebooks/02_silver/02_silver_citibike.ipynb
+            source: WORKSPACE
+          job_cluster_key: citibike_etl_pipeline_nb_cluster
+        - task_key: 03_gold_citibike_daily_ride_summary
+          depends_on:
+            - task_key: 02_silver_citibike
+          notebook_task:
+            notebook_path: ../citibike_etl/notebooks/03_gold/03_gold_citibike_daily_ride_summary.ipynb
+            source: WORKSPACE
+          job_cluster_key: citibike_etl_pipeline_nb_cluster
+        - task_key: 03_gold_citibike_daily_station_performance
+          depends_on:
+            - task_key: 02_silver_citibike
+          notebook_task:
+            notebook_path: ../citibike_etl/notebooks/03_gold/03_gold_citibike_daily_station_performance.ipynb
+            source: WORKSPACE
+          job_cluster_key: citibike_etl_pipeline_nb_cluster
+      job_clusters:
+        - job_cluster_key: citibike_etl_pipeline_nb_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 18.x-scala2.13
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_D4ds_v5
+            enable_elastic_disk: true
+            data_security_mode: DATA_SECURITY_MODE_AUTO
+            runtime_engine: PHOTON
+            num_workers: 8
+      queue:
+        enabled: true
