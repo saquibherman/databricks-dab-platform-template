@@ -16,6 +16,7 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
+          environment_key: dab_project_env
         - task_key: 02_silver_citibike
           depends_on:
             - task_key: 01_bronze_citibike
@@ -28,6 +29,7 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
+          environment_key: dab_project_env
         - task_key: 03_gold_citibike_daily_ride_summary
           depends_on:
             - task_key: 02_silver_citibike
@@ -40,6 +42,7 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
+          environment_key: dab_project_env
         - task_key: 03_gold_citibike_daily_station_performance
           depends_on:
             - task_key: 02_silver_citibike
@@ -52,6 +55,15 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
+          environment_key: dab_project_env
+      # Serverless tasks get libraries from an environment (task-level `libraries` is not
+      # supported on serverless). The wheel is built from src/ by the `artifacts` block in databricks.yml.
+      environments:
+        - environment_key: dab_project_env
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
       job_clusters:
         # Defined but not used by any task yet; set `job_cluster_key: single_node_small` on a task to use it.
         - job_cluster_key: single_node_small

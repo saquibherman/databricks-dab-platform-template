@@ -7,6 +7,13 @@ bundle:
 include:
   - resources/*.yml
 
+# Build the dab_project wheel (src/dab_project) on every deploy and upload it with the bundle.
+artifacts:
+  dab_project_whl:
+    type: whl
+    build: uv build --wheel
+    path: .
+
 variables:
   catalog: 
     default: "citibike_dev" 
