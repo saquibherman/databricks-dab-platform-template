@@ -2,6 +2,9 @@ resources:
   jobs:
     citibike_etl_pipeline_nb:
       name: citibike_etl_pipeline_nb
+      # Tasks without job_cluster_key run on serverless (currently all tasks).
+      # To use classic compute, set `job_cluster_key: <key>` on a task (clusters defined under job_clusters).
+      performance_target: STANDARD
       tasks:
         - task_key: 01_bronze_citibike
           notebook_task:
@@ -13,7 +16,6 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
-          job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 02_silver_citibike
           depends_on:
             - task_key: 01_bronze_citibike
@@ -26,7 +28,6 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
-          job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 03_gold_citibike_daily_ride_summary
           depends_on:
             - task_key: 02_silver_citibike
@@ -39,7 +40,6 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
-          job_cluster_key: citibike_etl_pipeline_nb_cluster
         - task_key: 03_gold_citibike_daily_station_performance
           depends_on:
             - task_key: 02_silver_citibike
@@ -52,20 +52,12 @@ resources:
               processed_timestamp: "{{job.start_time.iso_datetime}}"
               catalog: "${var.catalog}"
             source: WORKSPACE
-          job_cluster_key: citibike_etl_pipeline_nb_cluster
       job_clusters:
-        - job_cluster_key: citibike_etl_pipeline_nb_cluster
-          new_cluster:
-            cluster_name: ""
-            spark_version: 18.x-scala2.13
-            azure_attributes:
-              first_on_demand: 1
-              availability: SPOT_WITH_FALLBACK_AZURE
-              spot_bid_max_price: -1
-            node_type_id: Standard_D4ds_v5
-            enable_elastic_disk: true
-            data_security_mode: DATA_SECURITY_MODE_AUTO
-            runtime_engine: PHOTON
-            num_workers: 8
+        # Defined but not used by any task yet; set `job_cluster_key: single_node_small` on a task to use it.
+        - job_cluster_key: single_node_small
+          new_cluster: "${var.single_node_small}"
+        # Defined but not used by any task yet; set `job_cluster_key: d4ds_v5` on a task to use it.
+        - job_cluster_key: d4ds_v5
+          new_cluster: "${var.d4ds_v5}"
       queue:
         enabled: true
