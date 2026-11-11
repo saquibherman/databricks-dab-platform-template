@@ -35,3 +35,6 @@ ipykernel==6.29.5
 ipython==8.30.0
 pyzmq==26.2.0
 tornado==6.5.1
+
+# Testing (run: .venv_pyspark/bin/python -m pytest)
+pytest==8.3.5
