@@ -38,3 +38,5 @@ tornado==6.5.1
 
 # Testing (run: .venv_pyspark/bin/python -m pytest)
 pytest==8.3.5
+pytest-cov==7.1.0
+coverage==7.17.2

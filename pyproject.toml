@@ -18,6 +18,7 @@ dev = [
     "databricks-dlt",
     "databricks-connect~=18.0",
     "ipykernel",
+    "pytest-cov==7.1.0",
 ]
 
 [build-system]
@@ -35,6 +36,14 @@ filterwarnings = [
     # jupyter_client announces its upcoming platformdirs migration; not actionable here
     "ignore:Jupyter is migrating its paths:DeprecationWarning",
 ]
+
+[tool.coverage.run]
+source = ["src/dab_project"]
+omit = ["*/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
 
 [tool.ruff]
 line-length = 120
