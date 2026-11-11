@@ -27,6 +27,64 @@ If you're developing with an IDE, dependencies for this project should be instal
 *  Run `uv sync --dev` to install the project's dependencies.
 
 
+## Local Python environments
+
+Two local virtual environments are used, both on Python 3.12 and pinned to
+Databricks Runtime 18 LTS (Apache Spark 4.1.0). Both folders are git-ignored; recreate them
+with the commands below.
+
+| Environment     | Use it for                                                                 | Defined by                                       |
+|-----------------|----------------------------------------------------------------------------|--------------------------------------------------|
+| `.venv_dbc`     | Running code against Databricks compute (Databricks Connect), tests, notebooks | `pyproject.toml` + `uv.lock`                     |
+| `.venv_pyspark` | Fully local, offline open-source PySpark (no workspace needed)             | `requirements-pyspark.txt`                       |
+
+> Don't install `pyspark` into `.venv_dbc`: it conflicts with `databricks-connect`.
+
+### `.venv_dbc` (Databricks Connect)
+
+```bash
+# Recommended: let the Databricks CLI build it, matched to your compute
+databricks environments setup-local --profile <PROFILE>
+
+# Or with plain uv from the lock file
+UV_PROJECT_ENVIRONMENT=.venv_dbc uv sync --dev
+```
+
+The `[tool.uv]` constraints in `pyproject.toml` are managed by `databricks environments setup-local`;
+don't edit them by hand. Add runtime dependencies with `uv add <package>` and dev tools with
+`uv add --dev <package>`.
+
+Databricks Connect needs compute: pass `.serverless()` or a cluster ID to `DatabricksSession.builder`,
+or set `serverless_compute_id = auto` (or `cluster_id = ...`) in your `~/.databrickscfg` profile.
+
+### `.venv_pyspark` (local PySpark)
+
+```bash
+uv venv .venv_pyspark --python 3.12
+uv pip install --no-config --python .venv_pyspark/bin/python -r requirements-pyspark.txt
+uv pip install --no-config --python .venv_pyspark/bin/python --no-deps -e .   # optional: import dab_project
+```
+
+`--no-config` is required so uv ignores the Databricks Connect constraints in `pyproject.toml`.
+Requires Java 17+ (`JAVA_HOME`). Startup warnings (incubator modules, loopback address,
+native-hadoop) are harmless.
+
+### Using them in VS Code
+
+Select the interpreter or notebook kernel with **Python: Select Interpreter** /
+**Select Kernel → Python Environments** and pick `.venv_dbc/bin/python` or
+`.venv_pyspark/bin/python`.
+
+### Building the wheel
+
+```bash
+uv build --wheel          # writes dist/dab_project-<version>-py3-none-any.whl
+```
+
+`databricks bundle deploy` builds and uploads the wheel automatically (see `artifacts` in
+`databricks.yml`).
+
+
 # Using this project using the CLI
 
 The Databricks workspace and IDE extensions provide a graphical interface for working
@@ -58,5 +116,6 @@ with this project. It's also possible to interact with it directly using the CLI
 
 5. Finally, to run tests locally, use `pytest`:
    ```
-   $ uv run pytest
+   $ UV_PROJECT_ENVIRONMENT=.venv_dbc uv run pytest
    ```
+   (Without `UV_PROJECT_ENVIRONMENT`, `uv run` creates and uses a separate `.venv`.)
