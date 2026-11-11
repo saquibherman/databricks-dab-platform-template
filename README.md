@@ -75,6 +75,46 @@ Select the interpreter or notebook kernel with **Python: Select Interpreter** /
 **Select Kernel → Python Environments** and pick `.venv_dbc/bin/python` or
 `.venv_pyspark/bin/python`.
 
+### Running tests
+
+Unit tests live in `tests/` and take a shared `spark` fixture from `tests/conftest.py`.
+Where they run depends on the environment:
+
+| Environment     | Spark used                                           | Needs                                  |
+|-----------------|------------------------------------------------------|----------------------------------------|
+| `.venv_pyspark` | Local open-source Spark (`local[*]`)                 | Java 17+; no workspace, no credentials |
+| `.venv_dbc`     | Databricks serverless via Databricks Connect         | `DEFAULT` profile in `~/.databrickscfg` |
+
+```bash
+# Local Spark (recommended day to day; also what CI uses)
+.venv_pyspark/bin/python -m pytest
+uv run --no-project --python .venv_pyspark/bin/python pytest   # same, via uv
+
+# Databricks serverless
+.venv_dbc/bin/python -m pytest
+UV_PROJECT_ENVIRONMENT=.venv_dbc uv run pytest                  # same, via uv
+```
+
+Or activate an environment (`source .venv_pyspark/bin/activate`) and run `pytest`.
+
+- `--no-project` is required for `.venv_pyspark`: otherwise `uv run` syncs the project into it and
+  installs `databricks-connect`, which conflicts with `pyspark`.
+- `uv run` syncs `.venv_dbc` to `uv.lock` first, removing packages installed by hand; add packages
+  with `uv add` / `uv add --dev` instead.
+- Plain `uv run pytest` uses (and creates if needed) a separate `.venv` with Databricks Connect.
+- `dab_project` is imported from `src/` via `pythonpath = ["src"]` in `pyproject.toml`; no install needed.
+
+Writing a test: add `spark` as a parameter to get the right session automatically.
+
+```python
+def test_something(spark):
+    df = spark.createDataFrame([(1,)], "x int")
+    assert df.count() == 1
+```
+
+Useful options: `pytest -q`, `pytest -x` (stop at first failure), `pytest -k duration`
+(select by name), `pytest tests/test_citibike_utils.py` (one file).
+
 ### Building the wheel
 
 ```bash
@@ -114,8 +154,8 @@ with this project. It's also possible to interact with it directly using the CLI
    $ databricks bundle run
    ```
 
-5. Finally, to run tests locally, use `pytest`:
+5. Finally, to run tests locally, use `pytest` (see [Running tests](#running-tests)):
    ```
-   $ UV_PROJECT_ENVIRONMENT=.venv_dbc uv run pytest
+   $ .venv_pyspark/bin/python -m pytest          # local Spark
+   $ UV_PROJECT_ENVIRONMENT=.venv_dbc uv run pytest   # Databricks serverless
    ```
-   (Without `UV_PROJECT_ENVIRONMENT`, `uv run` creates and uses a separate `.venv`.)

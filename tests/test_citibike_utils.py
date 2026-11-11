@@ -2,23 +2,8 @@
 import datetime
 from dab_project.citibike.citibike_utils import get_trip_duration_mins
 
-# Adjust the sys.path if needed (usually in conftest.py or at the top of your test files)
 
-
-def test_get_trip_duration_mins():
-    # Create a SparkSession
-    try:
-        from databricks.connect import DatabricksSession
-
-        spark = DatabricksSession.builder.serverless().getOrCreate()
-    except ImportError:
-        try:
-            from pyspark.sql import SparkSession
-
-            spark = SparkSession.builder.getOrCreate()
-        except:
-            raise ImportError("Neither Databricks Session or Spark Session are available")
-
+def test_get_trip_duration_mins(spark):
     # Create a test DataFrame with known start and end timestamps using datetime objects
     data = [
         (datetime.datetime(2025, 4, 10, 10, 0, 0), datetime.datetime(2025, 4, 10, 10, 10, 0)),  # 10 minutes
