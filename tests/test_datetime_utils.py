@@ -1,12 +1,21 @@
 # test_datetime_utils.py
 import datetime
 from dab_project.utils.datetime_utils import timestamp_to_date_col
-from pyspark.sql import SparkSession
 
 
 def test_timestamp_to_date_col():
     # Create a SparkSession
-    spark = SparkSession.builder.getOrCreate()
+    try:
+        from databricks.connect import DatabricksSession
+
+        spark = DatabricksSession.builder.serverless().getOrCreate()
+    except ImportError:
+        try:
+            from pyspark.sql import SparkSession
+
+            spark = SparkSession.builder.getOrCreate()
+        except:
+            raise ImportError("Neither Databricks Session or Spark Session are available")
 
     # Create a DataFrame with a known timestamp column using a datetime object
     data = [(datetime.datetime(2025, 4, 10, 10, 30, 0),)]
