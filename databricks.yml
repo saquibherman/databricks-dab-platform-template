@@ -46,8 +46,10 @@ targets:
       dev_flag:
         default: false
     permissions:
-      - user_name: saquib.herman@knowit.se
+      - service_principal_name: 2fe62938-ee9d-493b-950a-ee3c6613099f
         level: CAN_MANAGE
+    run_as:
+      service_principal_name: 2fe62938-ee9d-493b-950a-ee3c6613099f
   prod:
     mode: production
     workspace:
@@ -60,5 +62,7 @@ targets:
       dev_flag:
         default: false
     permissions:
-      - user_name: saquib.herman@knowit.se
+      - service_principal_name: 64872f30-cc2f-45b3-a709-3eac1c9ebbf9
         level: CAN_MANAGE
+    run_as:
+      service_principal_name: 64872f30-cc2f-45b3-a709-3eac1c9ebbf9
